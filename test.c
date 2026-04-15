@@ -80,5 +80,6 @@ int main(int argc, char *argv[])
             }
         }
     }
+    printf("Operation completed.\n");
     return 0;
 }
