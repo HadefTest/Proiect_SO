@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
                 int idx = atoi(argv[++i]);
                 remove_report(dist, idx, role);
             }
+            
         }
     }
     printf("Operation completed.\n");
