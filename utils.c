@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+s
 
 void mode_to_string(mode_t mode, char *str) {
     strcpy(str, "---------");
