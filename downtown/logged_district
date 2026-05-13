@@ -1,0 +1,4 @@
+1778545704 bob inspector add (Monitor notified via SIGUSR1)
+1778545714 bob inspector add (Monitor notified via SIGUSR1)
+1778545862 alex inspector add (Monitor NOT notified: offline/error)
+1778545943 alex inspector add (Monitor NOT notified: offline/error)
