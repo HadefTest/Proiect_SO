@@ -5,6 +5,7 @@ An universitar: 2026
 Disciplina: Sisteme de Operare  
 Proiect: Sistem de raportare și monitorizare a infrastructurii urbane  
 
+
 ---
 
 ## Faza 1: Gestiunea fișierelor și filtrarea datelor
