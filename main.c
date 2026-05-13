@@ -22,6 +22,10 @@ int main(int argc, char *argv[]) {
             district = argv[++i];
             target_id = atoi(argv[++i]);
         }
+        else if (strcmp(argv[i], "--remove_district") == 0) {
+            command = "remove_district";
+            district = argv[++i];
+        }
     }
 
     if (!role || !user || !command || !district) return 1;
@@ -29,6 +33,7 @@ int main(int argc, char *argv[]) {
     if (strcmp(command, "add") == 0) cmd_add(district, user, role);
     else if (strcmp(command, "list") == 0) cmd_list(district, role);
     else if (strcmp(command, "remove_report") == 0) cmd_remove(district, user, role, target_id);
+    else if (strcmp(command, "remove_district") == 0) cmd_remove_district(district, user, role);
 
     return 0;
 }

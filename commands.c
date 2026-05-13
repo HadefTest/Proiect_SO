@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <signal.h>
 
 void cmd_add(const char *district, const char *user, const char *role) {
     setup_district(district);
@@ -23,6 +25,7 @@ void cmd_add(const char *district, const char *user, const char *role) {
     memset(&r, 0, sizeof(Report));
     
     // Setam datele automate (ID random, utilizator, timp)
+    srand(time(NULL));
     r.report_id = rand() % 10000;
     strncpy(r.inspector, user, MAX_STR - 1);
     r.timestamp = time(NULL);
@@ -61,7 +64,29 @@ void cmd_add(const char *district, const char *user, const char *role) {
     write(fd, &r, sizeof(Report));
     close(fd);
     
-    log_action(district, user, role, "add");
+    // Notify monitor
+    char log_msg[256] = "add";
+    int monitor_fd = open(".monitor_pid", O_RDONLY);
+    if (monitor_fd >= 0) {
+        char pid_str[16];
+        int n = read(monitor_fd, pid_str, sizeof(pid_str) - 1);
+        close(monitor_fd);
+        if (n > 0) {
+            pid_str[n] = '\0';
+            pid_t monitor_pid = atoi(pid_str);
+            if (kill(monitor_pid, SIGUSR1) == 0) {
+                strcat(log_msg, " - monitor notified");
+            } else {
+                strcat(log_msg, " - monitor could not be informed");
+            }
+        } else {
+            strcat(log_msg, " - monitor could not be informed");
+        }
+    } else {
+        strcat(log_msg, " - monitor could not be informed");
+    }
+    
+    log_action(district, user, role, log_msg);
 }
 
 void cmd_list(const char *district, const char *role) {
@@ -131,4 +156,34 @@ void cmd_remove(const char *district,const char *user, const char *role, int tar
     log_action(district, user, role, "remove_report");
     printf("Raport sters.\n");
     
+}
+
+void cmd_remove_district(const char *district, const char *user, const char *role) {
+    if (strcmp(role, "manager") != 0) {
+        printf("Eroare: Doar managerii pot sterge districte.\n");
+        return;
+    }
+
+    pid_t pid = fork();
+    if (pid == 0) {
+        // Child process
+        execlp("rm", "rm", "-rf", district, NULL);
+        perror("execlp failed");
+        exit(1);
+    } else if (pid > 0) {
+        // Parent
+        int status;
+        waitpid(pid, &status, 0);
+        if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+            printf("District %s sters.\n", district);
+            // Remove symlink
+            char symlink[256];
+            snprintf(symlink, sizeof(symlink), "active_reports-%s", district);
+            unlink(symlink);
+        } else {
+            printf("Eroare la stergerea districtului %s.\n", district);
+        }
+    } else {
+        perror("fork failed");
+    }
 }

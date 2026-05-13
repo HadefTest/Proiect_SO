@@ -18,3 +18,34 @@ Pentru `match_condition`, a generat o serie de instrucțiuni `if` și `strcmp` p
 **Completarea operatorilor:** Codul generat inițial acoperea doar operatorii de bază. Am adăugat manual restul operatorilor (`<`, `<=`, `!=`) în logica din `match_condition` pentru a acoperi toate cazurile de test.
 **Corecții de memorie (Debugging):** Am cerut ajutorul AI-ului pentru a rezolva un warning de `buffer overflow` apărut la citire. Am modificat codul pentru a folosi `sizeof(r.description)` în loc de dimensiuni hardcodate în funcția `fgets`.
 **Implementarea proprie (Logica Filter):** Conform cerinței, am scris singur logica principală a comenzii `filter`: deschiderea `reports.dat` cu `open()`, citirea record cu record folosind un loop `read()`, parsarea condiției cu `parse_condition` și verificarea fiecărui rând cu `match_condition`.
+
+# Faza 2: Procese și Semnale
+
+## 1. Tool-ul utilizat
+Am folosit GitHub Copilot pentru asistență în implementarea codului C pentru procese și semnale.
+
+## 2. Prompturile folosite
+**Prompt 1 (implementare monitor_reports):**
+"Scrie un program C numit monitor_reports care la startup creează fișierul .monitor_pid cu PID-ul său, răspunde la SIGUSR1 cu un mesaj, se termină doar la SIGINT ștergând fișierul."
+
+**Prompt 2 (modificare cmd_add pentru notificare):**
+"Modifică funcția cmd_add să citească .monitor_pid, să trimită SIGUSR1 către PID-ul monitorului, și să logheze dacă a reușit sau nu."
+
+**Prompt 3 (implementare cmd_remove_district):**
+"Scrie funcția cmd_remove_district care verifică rol manager, creează un proces copil ce rulează rm -rf <district>, așteaptă copilul, și șterge symlink-ul active_reports-<district>."
+
+## 3. Ce a generat AI-ul
+Pentru monitor_reports, Copilot a generat structura cu sigaction pentru SIGINT și SIGUSR1, crearea fișierului .monitor_pid, și loop-ul cu pause().
+
+Pentru notificarea în cmd_add, a sugerat citirea fișierului, parsarea PID-ului, folosirea kill() pentru SIGUSR1, și logarea rezultatului.
+
+Pentru cmd_remove_district, a generat fork(), execlp("rm", "rm", "-rf", district, NULL), waitpid(), și unlink() pentru symlink.
+
+## 4. Ce am modificat și de ce
+**Adăugare includes:** Am adăugat <sys/wait.h> și <signal.h> în commands.c pentru funcțiile folosite.
+
+**Logarea notificării:** Am modificat log_action să accepte un mesaj variabil pentru a include statusul notificării.
+
+**Testare:** Am testat manual adăugarea rapoartelor și ștergerea districtului pentru a verifica funcționalitatea.
+
+**Implementare utils.c:** Deoarece utils.c era gol, am implementat funcțiile declarate în utils.h bazat pe logica existentă din cod.
