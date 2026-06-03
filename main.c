@@ -16,6 +16,7 @@ int main(int argc, char **argv) {
             user = argv[i + 1];
             i++;
         } else {
+            // Aceasta este comanda (ex: --add sau add)
             cmd_idx = i;
             break;
         }
@@ -29,7 +30,13 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    // Extragem comanda
     char *cmd = argv[cmd_idx];
+
+    // MODIFICARE: Dacă comanda începe cu "--", sărim peste primele 2 caractere
+    if (strncmp(cmd, "--", 2) == 0) {
+        cmd += 2;
+    }
 
     if (strcmp(cmd, "add") == 0 && cmd_idx + 1 < argc) {
         do_add(argv[cmd_idx + 1], user, role);
